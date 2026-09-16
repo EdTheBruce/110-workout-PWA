@@ -62,7 +62,7 @@
         </div>
 
         <!-- MATCHED MOBILITY BOX -->
-        <div id="hero-mobility-box" class="mobility-box" onclick="switchTab('tab-mobility')">
+        <div id="hero-mobility-box" class="mobility-box" role="button" tabindex="0" aria-label="View matched mobility routine" onclick="switchTab('tab-mobility')" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); switchTab('tab-mobility'); }">
           <div class="mobility-info">
             <span class="mobility-label">Matched Mobility Routine</span>
             <span id="hero-mobility-name" class="mobility-name">Full-Body Mobility Routine (~14 min)</span>
@@ -100,7 +100,7 @@
           </div>
         </div>
 
-        <div class="checkbox-row" onclick="toggleMobilityDone()">
+        <div class="checkbox-row">
           <input type="checkbox" id="mobility-done-check" checked>
           <label class="checkbox-label" for="mobility-done-check">Completed today's mobility routine</label>
         </div>
@@ -146,8 +146,8 @@
           Total Time Remaining: <span id="timer-total-remain" style="font-weight: 700; color: #fff;">10:00</span>
         </div>
 
-        <div class="checkbox-row" style="margin: 0 0 16px 0;" onclick="toggleAudio()">
-          <input type="checkbox" id="timer-audio-check" checked>
+        <div class="checkbox-row" style="margin: 0 0 16px 0;">
+          <input type="checkbox" id="timer-audio-check" checked onchange="toggleAudio()">
           <label class="checkbox-label" for="timer-audio-check">Audio Countdown Beeps (:57, :58, :59, :00)</label>
         </div>
 

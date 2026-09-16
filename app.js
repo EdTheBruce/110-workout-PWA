@@ -249,6 +249,7 @@ let timerTotalSeconds = 600;
 let timerCurrentSecondInRound = 60;
 let timerCurrentRound = 1;
 let timerTotalRounds = 10;
+let timerExerciseName = '';
 let audioContext = null;
 let wakeLock = null;
 
@@ -460,6 +461,7 @@ function skipToRestDay() {
 // TIMER SETUP
 function startTimerForToday() {
   const pattern = PATTERNS[currentStepIndex];
+  timerExerciseName = pattern.primary;
   timerTotalRounds = currentDuration;
   timerTotalSeconds = currentDuration * 60;
   timerCurrentRound = 1;
@@ -572,7 +574,7 @@ function finishTimer() {
   playBeep(880, 0.6);
   setTimeout(() => playBeep(1174, 0.8), 300);
 
-  alert(`Workout Complete! You finished ${timerTotalRounds} minutes EMOM of ${PATTERNS[currentStepIndex].primary}. Ready to log!`);
+  alert(`Workout Complete! You finished ${timerTotalRounds} minutes EMOM of ${timerExerciseName || PATTERNS[currentStepIndex].primary}. Ready to log!`);
   switchTab('tab-today');
 }
 
@@ -682,7 +684,13 @@ function exportHistoryCSV() {
   }
 
   let csv = 'Date,Step,Movement Pattern,Exercise,Variation,RepsPerMin,DurationMin,TotalReps,MobilityCompleted,Notes\n';
-  history.forEach(h => { const cleanNotes = (h.notes || '').replace(/"/g, '""'); csv += `"${h.date}","${((h.stepIndex || 0) + 1)}","${h.patternName}","${h.exercise}","${h.variation || ''}",${h.reps},${h.duration},${h.totalReps},"${h.mobilityDone ? 'Yes' : 'No'}","${cleanNotes}"\n`; });
+  history.forEach(h => {
+    const cleanPatternName = (h.patternName || '').replace(/"/g, '""');
+    const cleanExercise = (h.exercise || '').replace(/"/g, '""');
+    const cleanVariation = (h.variation || '').replace(/"/g, '""');
+    const cleanNotes = (h.notes || '').replace(/"/g, '""');
+    csv += `"${h.date}","${((h.stepIndex || 0) + 1)}","${cleanPatternName}","${cleanExercise}","${cleanVariation}",${h.reps},${h.duration},${h.totalReps},"${h.mobilityDone ? 'Yes' : 'No'}","${cleanNotes}"\n`;
+  });
 
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
