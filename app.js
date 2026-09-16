@@ -400,7 +400,7 @@ function adjustReps(delta) {
 }
 
 function adjustDuration(delta) {
-  currentDuration = Math.max(5, Math.min(60, currentDuration + (delta * (currentDuration >= 10 ? 5 : 1))));
+  currentDuration = Math.max(10, Math.min(60, currentDuration + (delta * 5)));
   updateStepperDisplay();
 }
 
