@@ -1,0 +1,18 @@
+{
+  "name": "1-10 Method & Everyday Mobility",
+  "short_name": "1-10 Method",
+  "description": "Daily rolling workout and mobility companion with EMOM timer and last-session lookup",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
