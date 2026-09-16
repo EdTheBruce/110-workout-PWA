@@ -35,6 +35,17 @@ self.addEventListener('fetch', (e) => {
   }
 
   e.respondWith(
-    caches.match(e.request).then((res) => res || fetch(e.request))
+    fetch(e.request)
+      .then((res) => {
+        if (res.ok && res.type === 'basic') {
+          const responseClone = res.clone();
+          e.waitUntil(
+            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, responseClone))
+          );
+        }
+
+        return res;
+      })
+      .catch(() => caches.match(e.request).then((res) => res || fetch(e.request)))
   );
 });

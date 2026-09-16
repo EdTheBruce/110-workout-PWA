@@ -296,7 +296,7 @@ function loadState() {
   if (savedIndex !== null) {
     const parsedIndex = parseInt(savedIndex, 10);
     if (Number.isFinite(parsedIndex)) {
-      currentStepIndex = parsedIndex % 8;
+      currentStepIndex = ((parsedIndex % 8) + 8) % 8;
     }
   }
 
@@ -759,8 +759,10 @@ function exportHistoryCSV() {
   a.download = `1-10-method-workout-history-${new Date().toISOString().split('T')[0]}.csv`;
   document.body.appendChild(a);
   a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  setTimeout(() => {
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, 0);
 }
 
 // LIBRARY RENDERING

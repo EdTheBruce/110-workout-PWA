@@ -251,6 +251,16 @@ main {
   color: var(--blue);
 }
 
+.mobility-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--blue);
+  background: rgba(56, 189, 248, 0.1);
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+}
+
 /* QUICK LOG CARD */
 .form-group {
   margin-bottom: 14px;
