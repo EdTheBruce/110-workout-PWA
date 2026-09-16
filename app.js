@@ -294,7 +294,10 @@ if (hasDocument) {
 function loadState() {
   const savedIndex = getStoredValue('1_10_step_idx');
   if (savedIndex !== null) {
-    currentStepIndex = parseInt(savedIndex, 10) % 8;
+    const parsedIndex = parseInt(savedIndex, 10);
+    if (Number.isFinite(parsedIndex)) {
+      currentStepIndex = parsedIndex % 8;
+    }
   }
 
   const savedHistory = getStoredValue('1_10_history');
@@ -484,6 +487,8 @@ function toggleTimer() {
 }
 
 async function startTimer() {
+  if (timerInterval) return;
+
   initAudio();
   timerRunning = true;
   document.getElementById('timer-start-btn').innerText = 'Pause';
@@ -496,6 +501,7 @@ async function startTimer() {
     }
   } catch (err) {}
 
+  if (!timerRunning || timerInterval) return;
   timerInterval = setInterval(timerTick, 1000);
 }
 
@@ -550,7 +556,7 @@ function timerTick() {
   }
 
   // Update UI
-  document.getElementById('timer-seconds').innerText = timerCurrentSecondInRound === 0 ? '60' : timerCurrentSecondInRound;
+  document.getElementById('timer-seconds').innerText = timerCurrentSecondInRound;
   document.getElementById('timer-round-badge').innerText = `Minute ${timerCurrentRound} of ${timerTotalRounds}`;
   updateTotalRemainDisplay();
   setProgress(timerCurrentSecondInRound / 60);

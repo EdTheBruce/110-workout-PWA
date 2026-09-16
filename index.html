@@ -100,10 +100,10 @@
           </div>
         </div>
 
-        <div class="checkbox-row">
+        <label class="checkbox-row">
           <input type="checkbox" id="mobility-done-check" checked>
-          <label class="checkbox-label" for="mobility-done-check">Completed today's mobility routine</label>
-        </div>
+          <span class="checkbox-label">Completed today's mobility routine</span>
+        </label>
 
         <div class="form-group" style="margin-bottom: 16px;">
           <input type="text" id="workout-notes" placeholder="Optional notes (e.g. felt easy, add 1 rep next time)">
@@ -146,10 +146,10 @@
           Total Time Remaining: <span id="timer-total-remain" style="font-weight: 700; color: #fff;">10:00</span>
         </div>
 
-        <div class="checkbox-row" style="margin: 0 0 16px 0;">
+        <label class="checkbox-row" style="margin: 0 0 16px 0;">
           <input type="checkbox" id="timer-audio-check" checked onchange="toggleAudio()">
-          <label class="checkbox-label" for="timer-audio-check">Audio Countdown Beeps (:57, :58, :59, :00)</label>
-        </div>
+          <span class="checkbox-label">Audio Countdown Beeps (:57, :58, :59, :00)</span>
+        </label>
 
         <div class="timer-btn-row">
           <button id="timer-start-btn" class="timer-btn start" type="button" onclick="toggleTimer()">Start EMOM</button>
