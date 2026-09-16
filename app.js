@@ -305,10 +305,10 @@ function loadState() {
     try {
       history = JSON.parse(savedHistory);
     } catch (e) {
-      history = DEFAULT_HISTORY;
+      history = [...DEFAULT_HISTORY].reverse();
     }
   } else {
-    history = DEFAULT_HISTORY;
+    history = [...DEFAULT_HISTORY].reverse();
     saveHistory();
   }
 
@@ -463,15 +463,12 @@ function skipToRestDay() {
 
 // TIMER SETUP
 function startTimerForToday() {
-  const pattern = PATTERNS[currentStepIndex];
-  timerExerciseName = pattern.primary;
   timerTotalRounds = currentDuration;
   timerTotalSeconds = currentDuration * 60;
   timerCurrentRound = 1;
   timerCurrentSecondInRound = 60;
 
-  document.getElementById('timer-exercise-name').innerText = pattern.primary;
-  document.getElementById('timer-reps-target').innerText = `${currentReps} reps at top of every minute`;
+  updateTimerWorkoutDetails();
   document.getElementById('timer-round-badge').innerText = `Minute 1 of ${timerTotalRounds}`;
 
   switchTab('tab-timer');
@@ -508,6 +505,7 @@ async function startTimer() {
 function pauseTimer() {
   timerRunning = false;
   clearInterval(timerInterval);
+  timerInterval = null;
   document.getElementById('timer-start-btn').innerText = 'Resume';
   document.getElementById('timer-start-btn').className = 'timer-btn start';
 
@@ -518,6 +516,7 @@ function pauseTimer() {
 
 function resetTimer() {
   pauseTimer();
+  updateTimerWorkoutDetails();
   timerTotalSeconds = currentDuration * 60;
   timerCurrentRound = 1;
   timerCurrentSecondInRound = 60;
@@ -530,6 +529,13 @@ function resetTimerUI() {
   document.getElementById('timer-round-badge').innerText = `Minute 1 of ${timerTotalRounds}`;
   updateTotalRemainDisplay();
   setProgress(1);
+}
+
+function updateTimerWorkoutDetails() {
+  const pattern = PATTERNS[currentStepIndex];
+  timerExerciseName = pattern.primary;
+  document.getElementById('timer-exercise-name').innerText = pattern.primary;
+  document.getElementById('timer-reps-target').innerText = `${currentReps} reps at top of every minute`;
 }
 
 function timerTick() {
@@ -633,14 +639,27 @@ function renderMobility(key) {
   routine.moves.forEach(m => {
     const item = document.createElement('div');
     item.className = 'mobility-item';
-    item.innerHTML = `
-      <div class="mob-num">${m.num}.</div>
-      <div class="mob-details">
-        <div class="mob-name">${m.name}</div>
-        <div class="mob-reps">${m.reps}</div>
-        <div class="mob-cue">${m.cue}</div>
-      </div>
-    `;
+    const num = document.createElement('div');
+    num.className = 'mob-num';
+    num.textContent = `${m.num}.`;
+
+    const details = document.createElement('div');
+    details.className = 'mob-details';
+
+    const name = document.createElement('div');
+    name.className = 'mob-name';
+    name.textContent = m.name;
+
+    const reps = document.createElement('div');
+    reps.className = 'mob-reps';
+    reps.textContent = m.reps;
+
+    const cue = document.createElement('div');
+    cue.className = 'mob-cue';
+    cue.textContent = m.cue;
+
+    details.append(name, reps, cue);
+    item.append(num, details);
     container.appendChild(item);
   });
 }
@@ -664,21 +683,56 @@ function renderHistoryView() {
     const el = document.createElement('div');
     el.className = 'history-item';
     const dateFormatted = new Date(item.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const header = document.createElement('div');
+    header.className = 'history-header';
 
-    el.innerHTML = `
-      <div class="history-header">
-        <span class="history-exercise">${item.exercise}</span>
-        <span class="history-date">${dateFormatted}</span>
-      </div>
-      <div class="history-stats">
-        <span>${item.reps} reps/min</span>
-        <span>${item.duration} mins</span>
-        <span class="history-stat-highlight">${item.totalReps} total reps</span>
-        ${item.mobilityDone ? '<span style="color: var(--blue);">✓ Mobility</span>' : ''}
-      </div>
-      <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">${item.variation || ''}</div>
-      ${item.notes ? `<div class="history-notes">"${item.notes}"</div>` : ''}
-    `;
+    const exercise = document.createElement('span');
+    exercise.className = 'history-exercise';
+    exercise.textContent = item.exercise;
+
+    const date = document.createElement('span');
+    date.className = 'history-date';
+    date.textContent = dateFormatted;
+
+    header.append(exercise, date);
+
+    const stats = document.createElement('div');
+    stats.className = 'history-stats';
+
+    const reps = document.createElement('span');
+    reps.textContent = `${item.reps} reps/min`;
+
+    const duration = document.createElement('span');
+    duration.textContent = `${item.duration} mins`;
+
+    const total = document.createElement('span');
+    total.className = 'history-stat-highlight';
+    total.textContent = `${item.totalReps} total reps`;
+
+    stats.append(reps, duration, total);
+
+    if (item.mobilityDone) {
+      const mobility = document.createElement('span');
+      mobility.style.color = 'var(--blue)';
+      mobility.textContent = '✓ Mobility';
+      stats.appendChild(mobility);
+    }
+
+    const variation = document.createElement('div');
+    variation.style.fontSize = '12px';
+    variation.style.color = 'var(--text-secondary)';
+    variation.style.marginTop = '4px';
+    variation.textContent = item.variation || '';
+
+    el.append(header, stats, variation);
+
+    if (item.notes) {
+      const notes = document.createElement('div');
+      notes.className = 'history-notes';
+      notes.textContent = `"${item.notes}"`;
+      el.appendChild(notes);
+    }
+
     list.appendChild(el);
   });
 }
@@ -718,16 +772,41 @@ function renderLibraryView() {
     const card = document.createElement('div');
     card.className = 'history-item';
     card.style.marginBottom = '10px';
-    card.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-        <strong style="color:#fff; font-size:14px;">Step ${idx + 1}: ${p.primary}</strong>
-        <span class="tag ${p.category === 'PUSH' ? 'tag-push' : (p.category === 'PULL' ? 'tag-pull' : 'tag-legs')}">${p.category}</span>
-      </div>
-      <div style="font-size:12px; color:var(--text-secondary); margin-bottom:6px;">${p.name} • ${p.desc}</div>
-      <div style="font-size:11px; color:var(--text-muted); line-height:1.4;">
-        ${p.variations.map(v => `• ${v}`).join('<br>')}
-      </div>
-    `;
+    const header = document.createElement('div');
+    header.style.display = 'flex';
+    header.style.justifyContent = 'space-between';
+    header.style.alignItems = 'center';
+    header.style.marginBottom = '4px';
+
+    const title = document.createElement('strong');
+    title.style.color = '#fff';
+    title.style.fontSize = '14px';
+    title.textContent = `Step ${idx + 1}: ${p.primary}`;
+
+    const category = document.createElement('span');
+    category.className = `tag ${p.category === 'PUSH' ? 'tag-push' : (p.category === 'PULL' ? 'tag-pull' : 'tag-legs')}`;
+    category.textContent = p.category;
+
+    header.append(title, category);
+
+    const description = document.createElement('div');
+    description.style.fontSize = '12px';
+    description.style.color = 'var(--text-secondary)';
+    description.style.marginBottom = '6px';
+    description.textContent = `${p.name} • ${p.desc}`;
+
+    const variations = document.createElement('div');
+    variations.style.fontSize = '11px';
+    variations.style.color = 'var(--text-muted)';
+    variations.style.lineHeight = '1.4';
+
+    p.variations.forEach(v => {
+      const line = document.createElement('div');
+      line.textContent = `• ${v}`;
+      variations.appendChild(line);
+    });
+
+    card.append(header, description, variations);
     container.appendChild(card);
   });
 }
