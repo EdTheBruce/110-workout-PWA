@@ -209,12 +209,15 @@ main {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 12px 14px;
   margin-top: 12px;
   cursor: pointer;
+  font: inherit;
+  text-align: left;
   transition: all 0.15s ease;
 }
 

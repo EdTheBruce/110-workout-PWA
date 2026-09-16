@@ -29,6 +29,11 @@ self.addEventListener('activate', (e) => {
 });
 
 self.addEventListener('fetch', (e) => {
+  const requestUrl = new URL(e.request.url);
+  if (e.request.method !== 'GET' || requestUrl.origin !== self.location.origin) {
+    return;
+  }
+
   e.respondWith(
     caches.match(e.request).then((res) => res || fetch(e.request))
   );

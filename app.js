@@ -697,7 +697,10 @@ function exportHistoryCSV() {
   const a = document.createElement('a');
   a.href = url;
   a.download = `1-10-method-workout-history-${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a);
   a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 // LIBRARY RENDERING
