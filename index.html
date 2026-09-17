@@ -235,6 +235,39 @@
     </section>
   </main>
 
+  <div id="history-edit-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="history-edit-title">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="history-edit-title" class="modal-title">Edit Workout Entry</h3>
+        <button class="modal-close" type="button" onclick="closeHistoryEditModal()" aria-label="Close edit form">×</button>
+      </div>
+      <form id="history-edit-form">
+        <div class="form-group">
+          <label class="form-label" for="history-edit-notes">Notes</label>
+          <input type="text" id="history-edit-notes" placeholder="Optional notes">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="history-edit-reps">Reps / Min</label>
+          <input type="number" id="history-edit-reps" min="1" max="10" step="1" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="history-edit-duration">Duration (Min)</label>
+          <input type="number" id="history-edit-duration" min="1" step="1" required>
+        </div>
+        <label class="checkbox-row">
+          <input type="checkbox" id="history-edit-mobility-done">
+          <span class="checkbox-label">Mobility Done</span>
+        </label>
+        <div class="form-group">
+          <label class="form-label" for="history-edit-variation">Variation (Optional)</label>
+          <input type="text" id="history-edit-variation" placeholder="Variation / level">
+        </div>
+        <button class="btn-primary" type="submit">Save Changes</button>
+        <button class="btn-secondary" type="button" onclick="closeHistoryEditModal()">Cancel</button>
+      </form>
+    </div>
+  </div>
+
   <!-- BOTTOM NAVIGATION BAR -->
   <nav>
     <button class="nav-item active" type="button" onclick="switchTab('tab-today')">

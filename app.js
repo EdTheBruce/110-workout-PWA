@@ -241,6 +241,7 @@ let currentStepIndex = 4; // Step 5 (Horizontal Pull) by default based on seed h
 let currentReps = 5;
 let currentDuration = 10;
 let history = [];
+let editingHistoryId = null;
 
 // TIMER STATE
 let timerInterval = null;
@@ -287,6 +288,14 @@ if (hasDocument) {
     renderMobility('full');
     renderHistoryView();
     renderLibraryView();
+    const historyEditForm = document.getElementById('history-edit-form');
+    if (historyEditForm) historyEditForm.addEventListener('submit', saveHistoryEdit);
+    const historyEditModal = document.getElementById('history-edit-modal');
+    if (historyEditModal) {
+      historyEditModal.addEventListener('click', (event) => {
+        if (event.target === historyEditModal) closeHistoryEditModal();
+      });
+    }
     registerServiceWorker();
   });
 }
@@ -326,6 +335,21 @@ function saveState() {
 
 function saveHistory() {
   setStoredValue('1_10_history', JSON.stringify(history));
+}
+
+function syncCurrentStepFromHistory() {
+  if (history.length > 0 && Number.isFinite(history[0].stepIndex)) {
+    currentStepIndex = ((history[0].stepIndex + 1) % 8 + 8) % 8;
+    return;
+  }
+  currentStepIndex = 0;
+}
+
+function refreshViewsAfterHistoryChange() {
+  syncCurrentStepFromHistory();
+  saveState();
+  renderTodayView();
+  renderHistoryView();
 }
 
 function updateHeaderDate() {
@@ -690,11 +714,33 @@ function renderHistoryView() {
     exercise.className = 'history-exercise';
     exercise.textContent = item.exercise;
 
+    const meta = document.createElement('div');
+    meta.className = 'history-meta';
+
     const date = document.createElement('span');
     date.className = 'history-date';
     date.textContent = dateFormatted;
 
-    header.append(exercise, date);
+    const actions = document.createElement('div');
+    actions.className = 'history-actions';
+
+    const editBtn = document.createElement('button');
+    editBtn.type = 'button';
+    editBtn.className = 'history-action-btn edit';
+    editBtn.title = 'Edit workout';
+    editBtn.textContent = '✏️';
+    editBtn.addEventListener('click', () => openEditHistoryItem(item.id));
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.type = 'button';
+    deleteBtn.className = 'history-action-btn delete';
+    deleteBtn.title = 'Delete workout';
+    deleteBtn.textContent = '🗑️';
+    deleteBtn.addEventListener('click', () => deleteHistoryItem(item.id));
+
+    actions.append(editBtn, deleteBtn);
+    meta.append(date, actions);
+    header.append(exercise, meta);
 
     const stats = document.createElement('div');
     stats.className = 'history-stats';
@@ -718,13 +764,16 @@ function renderHistoryView() {
       stats.appendChild(mobility);
     }
 
-    const variation = document.createElement('div');
-    variation.style.fontSize = '12px';
-    variation.style.color = 'var(--text-secondary)';
-    variation.style.marginTop = '4px';
-    variation.textContent = item.variation || '';
+    el.append(header, stats);
 
-    el.append(header, stats, variation);
+    if (item.variation) {
+      const variation = document.createElement('div');
+      variation.style.fontSize = '12px';
+      variation.style.color = 'var(--text-secondary)';
+      variation.style.marginTop = '4px';
+      variation.textContent = item.variation;
+      el.appendChild(variation);
+    }
 
     if (item.notes) {
       const notes = document.createElement('div');
@@ -735,6 +784,71 @@ function renderHistoryView() {
 
     list.appendChild(el);
   });
+}
+
+function openEditHistoryItem(entryId) {
+  const entry = history.find(item => item.id === entryId);
+  if (!entry) return;
+
+  editingHistoryId = entryId;
+  document.getElementById('history-edit-notes').value = entry.notes || '';
+  document.getElementById('history-edit-reps').value = entry.reps;
+  document.getElementById('history-edit-duration').value = entry.duration;
+  document.getElementById('history-edit-mobility-done').checked = !!entry.mobilityDone;
+  document.getElementById('history-edit-variation').value = entry.variation || '';
+  document.getElementById('history-edit-modal').classList.add('active');
+}
+
+function closeHistoryEditModal() {
+  editingHistoryId = null;
+  document.getElementById('history-edit-modal').classList.remove('active');
+}
+
+function saveHistoryEdit(event) {
+  event.preventDefault();
+  if (!editingHistoryId) return;
+
+  const entryIndex = history.findIndex(item => item.id === editingHistoryId);
+  if (entryIndex === -1) return;
+
+  const reps = parseInt(document.getElementById('history-edit-reps').value, 10);
+  const duration = parseInt(document.getElementById('history-edit-duration').value, 10);
+
+  if (!Number.isFinite(reps) || reps < 1 || reps > 10) {
+    alert('Reps/Min must be between 1 and 10.');
+    return;
+  }
+
+  if (!Number.isFinite(duration) || duration < 1) {
+    alert('Duration must be at least 1 minute.');
+    return;
+  }
+
+  const updatedEntry = {
+    ...history[entryIndex],
+    notes: document.getElementById('history-edit-notes').value.trim(),
+    reps,
+    duration,
+    totalReps: reps * duration,
+    mobilityDone: document.getElementById('history-edit-mobility-done').checked,
+    variation: document.getElementById('history-edit-variation').value.trim()
+  };
+
+  history[entryIndex] = updatedEntry;
+  closeHistoryEditModal();
+  refreshViewsAfterHistoryChange();
+}
+
+function deleteHistoryItem(entryId) {
+  const shouldDelete = confirm('Delete this workout entry? This action cannot be undone.');
+  if (!shouldDelete) return;
+
+  const originalLength = history.length;
+  history = history.filter(item => item.id !== entryId);
+  if (history.length === originalLength) return;
+
+  closeHistoryEditModal();
+  refreshViewsAfterHistoryChange();
 }
 
 function exportHistoryCSV() {
