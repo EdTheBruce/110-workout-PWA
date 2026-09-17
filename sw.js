@@ -1,0 +1,51 @@
+const CACHE_NAME = '1-10-method-v1';
+const ASSETS = [
+  './',
+  './index.html',
+  './style.css',
+  './app.js',
+  './manifest.json',
+  './icon.svg'
+];
+
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => {
+      return Promise.all(
+        keys.map((key) => {
+          if (key !== CACHE_NAME) return caches.delete(key);
+        })
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', (e) => {
+  const requestUrl = new URL(e.request.url);
+  if (e.request.method !== 'GET' || requestUrl.origin !== self.location.origin) {
+    return;
+  }
+
+  e.respondWith(
+    fetch(e.request)
+      .then((res) => {
+        if (res.ok && res.type === 'basic') {
+          const responseClone = res.clone();
+          e.waitUntil(
+            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, responseClone))
+          );
+        }
+
+        return res;
+      })
+      .catch(() => caches.match(e.request).then((res) => res || Response.error()))
+  );
+});

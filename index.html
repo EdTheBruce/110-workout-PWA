@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="1-10 Method">
+  <meta name="theme-color" content="#0f172a">
+  <title>1-10 Method & Everyday Mobility</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icon.svg">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <span class="brand-badge">EMOM</span>
+      <div>
+        <h1 class="brand-title">1-10 Method</h1>
+      </div>
+    </div>
+    <div id="header-date" class="today-date">Today</div>
+  </header>
+
+  <main>
+    <!-- TAB 1: TODAY'S WORKOUT -->
+    <section id="tab-today" class="tab-pane active">
+      <!-- UP NEXT CARD -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Rolling Queue</span>
+          <span id="hero-step-pill" class="step-pill">Step 1 of 8</span>
+        </div>
+
+        <div class="tag-row">
+          <span id="hero-category-tag" class="tag tag-push">PUSH</span>
+          <span id="hero-pattern-tag" class="tag">Horizontal Push</span>
+        </div>
+
+        <h2 id="hero-exercise-name" class="hero-exercise">Push-Up</h2>
+        <p id="hero-pattern-desc" class="hero-pattern">Pressing in front of body, core stability & shoulder control.</p>
+
+        <div class="form-group" style="margin-bottom: 8px;">
+          <label class="form-label" for="variation-select">Select Variation / Level</label>
+          <div class="select-wrapper">
+            <select id="variation-select">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+        </div>
+
+        <!-- LAST TIME PERFORMANCE BOX -->
+        <div id="last-time-box" class="last-time-box">
+          <div class="last-time-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Last Time You Did This
+          </div>
+          <div id="last-time-stat" class="last-time-stat">5 reps/min × 10 min (50 reps)</div>
+          <div id="last-time-detail" class="last-time-detail">Level 2 (Push-Up) on Sep 12, 2026 • "Felt strong"</div>
+        </div>
+
+        <!-- MATCHED MOBILITY BOX -->
+        <button id="hero-mobility-box" class="mobility-box" type="button" onclick="switchTab('tab-mobility')">
+          <div class="mobility-info">
+            <span class="mobility-label">Matched Mobility Routine</span>
+            <span id="hero-mobility-name" class="mobility-name">Full-Body Mobility Routine (~14 min)</span>
+          </div>
+          <span class="mobility-link">View Moves →</span>
+        </button>
+      </div>
+
+      <!-- QUICK LOGGING CARD -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Today's Target & Log</span>
+          <span id="total-volume-calc" style="font-size: 13px; font-weight: 700; color: var(--accent);">50 Total Reps</span>
+        </div>
+
+        <div class="stepper-row">
+          <div class="stepper-card">
+            <span class="stepper-label">Reps / Minute</span>
+            <div class="stepper-controls">
+              <button class="step-btn" type="button" onclick="adjustReps(-1)">−</button>
+              <span id="reps-val" class="stepper-val">5</span>
+              <button class="step-btn" type="button" onclick="adjustReps(1)">+</button>
+            </div>
+            <span class="stepper-unit">Target: 1–10</span>
+          </div>
+
+          <div class="stepper-card">
+            <span class="stepper-label">Duration (Min)</span>
+            <div class="stepper-controls">
+              <button class="step-btn" type="button" onclick="adjustDuration(-1)">−</button>
+              <span id="duration-val" class="stepper-val">10</span>
+              <button class="step-btn" type="button" onclick="adjustDuration(1)">+</button>
+            </div>
+            <span class="stepper-unit">EMOM: 10–60 min</span>
+          </div>
+        </div>
+
+        <label class="checkbox-row">
+          <input type="checkbox" id="mobility-done-check" checked>
+          <span class="checkbox-label">Completed today's mobility routine</span>
+        </label>
+
+        <div class="form-group" style="margin-bottom: 16px;">
+          <input type="text" id="workout-notes" placeholder="Optional notes (e.g. felt easy, add 1 rep next time)">
+        </div>
+
+        <button class="btn-primary" type="button" onclick="logWorkout()">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Log Workout & Advance Step
+        </button>
+
+        <button class="btn-secondary" type="button" onclick="startTimerForToday()">
+          ⏱️ Start Built-In EMOM Timer
+        </button>
+
+        <button class="btn-secondary" style="border: none; color: var(--text-muted); font-size: 12px; margin-top: 4px;" type="button" onclick="skipToRestDay()">
+          Taking a Rest Day Today (Pause Queue)
+        </button>
+      </div>
+    </section>
+
+    <!-- TAB 2: TIMER -->
+    <section id="tab-timer" class="tab-pane">
+      <div class="card timer-container">
+        <div id="timer-round-badge" class="timer-round-badge">Minute 1 of 10</div>
+        <div id="timer-exercise-name" class="timer-exercise-name">Push-Up</div>
+        <div id="timer-reps-target" class="timer-reps-target">5 reps on the minute</div>
+
+        <div class="timer-ring-wrapper">
+          <svg class="timer-circle" width="240" height="240">
+            <circle class="timer-circle-bg" cx="120" cy="120" r="104" />
+            <circle id="timer-progress" class="timer-circle-progress" cx="120" cy="120" r="104" stroke-dasharray="653.45" stroke-dashoffset="0" />
+          </svg>
+          <div class="timer-display">
+            <div id="timer-seconds" class="timer-seconds">60</div>
+            <div class="timer-seconds-label">Seconds Left</div>
+          </div>
+        </div>
+
+        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
+          Total Time Remaining: <span id="timer-total-remain" style="font-weight: 700; color: #fff;">10:00</span>
+        </div>
+
+        <label class="checkbox-row" style="margin: 0 0 16px 0;">
+          <input type="checkbox" id="timer-audio-check" checked onchange="toggleAudio()">
+          <span class="checkbox-label">Audio Countdown Beeps (:03, :02, :01, :00)</span>
+        </label>
+
+        <div class="timer-btn-row">
+          <button id="timer-start-btn" class="timer-btn start" type="button" onclick="toggleTimer()">Start EMOM</button>
+          <button class="timer-btn reset" type="button" onclick="resetTimer()">Reset</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: MOBILITY ROUTINES -->
+    <section id="tab-mobility" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Mobility Guide</span>
+          <span style="font-size: 11px; color: var(--text-muted);">Everyday Mobility PDF</span>
+        </div>
+
+        <div class="tag-row" style="margin-bottom: 16px;">
+          <button id="mob-tab-full" class="tag tag-push" style="cursor: pointer;" onclick="renderMobility('full')">Full-Body (14m)</button>
+          <button id="mob-tab-lower" class="tag" style="cursor: pointer;" onclick="renderMobility('lower')">Lower-Body (20m)</button>
+          <button id="mob-tab-warmup" class="tag" style="cursor: pointer;" onclick="renderMobility('warmup')">Quick Warm-Up (8)</button>
+        </div>
+
+        <h3 id="mobility-routine-title" style="font-size: 17px; font-weight: 700; margin-bottom: 4px;">Full-Body Mobility Routine</h3>
+        <p id="mobility-routine-subtitle" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 14px;">Takes you through neck, shoulders, wrists, hips, and ankles.</p>
+
+        <div id="mobility-list-container">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: WORKOUT HISTORY -->
+    <section id="tab-history" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Workout History</span>
+          <button class="mobility-btn" type="button" onclick="exportHistoryCSV()">Export CSV</button>
+        </div>
+        <div id="history-summary" style="display: flex; justify-content: space-around; padding: 12px 0; border-bottom: 1px solid var(--border); margin-bottom: 14px;">
+          <div style="text-align: center;">
+            <div id="total-workouts-count" style="font-size: 20px; font-weight: 800; color: var(--accent);">0</div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Workouts</div>
+          </div>
+          <div style="text-align: center;">
+            <div id="total-reps-count" style="font-size: 20px; font-weight: 800; color: var(--blue);">0</div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Total Reps</div>
+          </div>
+          <div style="text-align: center;">
+            <div id="current-step-badge" style="font-size: 20px; font-weight: 800; color: var(--amber);">Step 1</div>
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Current Step</div>
+          </div>
+        </div>
+
+        <div id="history-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: EXERCISE LIBRARY -->
+    <section id="tab-library" class="tab-pane">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">The 1-10 Method System</span>
+          <span class="step-pill">Kace Calisthenics</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.45; margin-bottom: 14px;">
+          Progress does not come from doing more. It comes from doing less, better, and more often. All you need is 10 minutes.
+        </p>
+
+        <h4 style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--accent); margin-bottom: 8px;">The 3 Rules of Progression</h4>
+        <ol style="font-size: 13px; color: var(--text-secondary); padding-left: 18px; margin-bottom: 18px; line-height: 1.5;">
+          <li><strong>Increase time first:</strong> Extend from 10 min to 15, 20, or up to 60 min.</li>
+          <li><strong>Increase reps second:</strong> Move from 3 reps/min to 4, 5, etc. (up to 10 reps).</li>
+          <li><strong>Increase variation last:</strong> Only move from Level 1 to Level 2/3 when time and reps feel easy and controlled.</li>
+        </ol>
+
+        <h4 style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--blue); margin-bottom: 8px;">8 Movement Patterns & Variations</h4>
+        <div id="library-matrix-container">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- BOTTOM NAVIGATION BAR -->
+  <nav>
+    <button class="nav-item active" type="button" onclick="switchTab('tab-today')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Today</span>
+    </button>
+    <button class="nav-item" type="button" onclick="switchTab('tab-timer')">
+      <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      <span>Timer</span>
+    </button>
+    <button class="nav-item" type="button" onclick="switchTab('tab-mobility')">
+      <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+      <span>Mobility</span>
+    </button>
+    <button class="nav-item" type="button" onclick="switchTab('tab-history')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <span>History</span>
+    </button>
+    <button class="nav-item" type="button" onclick="switchTab('tab-library')">
+      <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Guide</span>
+    </button>
+  </nav>
+
+  <script src="./app.js"></script>
+</body>
+</html>
